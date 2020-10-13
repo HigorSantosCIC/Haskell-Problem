@@ -46,11 +46,12 @@ quickSort :: Ord a => [a] -> [a]
 quickSort [] = []
 quickSort (a:as) = quickSort [e | e <- as, e < a] ++ [a] ++ quickSort [e | e <- as, e >= a]
 
-
-quickSort2 :: Ord a => [a] -> [a]
+quickSort2 :: Ord a => [(a,b)] -> [(a,b)] 
 quickSort2 [] = []
-quickSort2 (a:as) = quickSort2 [e | e <- as, e < a] ++ [a] ++ quickSort2 [e | e <- as, e > a] 
+quickSort2 ((m,h):as) = quickSort2 [(e,he) | (e,he) <- as, e < m] ++ [(m,h)] ++ quickSort2 [(e,he) | (e,he) <- as, e > m] 
 
+listSize [] = 0
+listSize (_:t) = 1 + listSize t
 
 {-
 
@@ -124,15 +125,11 @@ consultarMedicamento m (h:t)
 
 -}
 
-demandaMedicamentos :: Receituario -> EstoqueMedicamentos
-demandaMedicamentosAUX _ [] = 0
-demandaMedicamentosAUX m (h:t)
-   | m == mh = q
-   | otherwise = demandaMedicamentosAUX m t
-   where () = h
-   length 
 
-FUI CAGAR, JA VOLTO
+
+demandaMedicamentos :: Receituario -> EstoqueMedicamentos
+demandaMedicamentos [] = []
+demandaMedicamentos (rh:t) = quickSort2 ((m, listSize h):demandaMedicamentos t) where (m,h) = rh
 
 
 {-
@@ -148,8 +145,20 @@ FUI CAGAR, JA VOLTO
 
  -}
 
+inList _ [] = False
+inList e (h:t)
+   | e == h = True
+   | otherwise = inList e t
+
+distinct :: Eq a => [a] -> [a] -> [a]
+distinct [] _ = []
+distinct (h:t) e
+   | h `inList` e = distinct t e
+   | otherwise = (h:distinct t (h:e))
+
 receituarioValido :: Receituario -> Bool
-receituarioValido = undefined
+receituarioValido [] = False
+receituarioValido e = e == quickSort2 (distinct e [])
 
 planoValido :: PlanoMedicamento -> Bool
 planoValido = undefined
@@ -175,7 +184,7 @@ plantaoValido = undefined
 
 {-
    QUESTÃO 7  VALOR: 1,0 ponto
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
   Defina a função "geraPlanoReceituario", cujo tipo é dado abaixo e que, a partir de um receituario válido,
   retorne um plano de medicamento válido.
 
